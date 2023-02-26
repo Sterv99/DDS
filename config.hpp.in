@@ -1,0 +1,7 @@
+#ifndef DDS_HPP
+#define DDS_HPP
+
+#cmakedefine COMPILE_WEBSOCKET
+#cmakedefine COMPILE_RTMP
+
+#endif
