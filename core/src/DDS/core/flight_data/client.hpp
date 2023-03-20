@@ -1,48 +1,29 @@
 #ifndef FLIGHT_DATA_CLIENT_HPP
 #define FLIGHT_DATA_CLIENT_HPP
 
-#include <atomic>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <functional>
-
+#include <string>
+#include <vector>
+#include <memory>
 #include <DDS/core/client.hpp>
+#include <DDS/core/flight_data/server.hpp>
 
-struct Message
-{
-	enum Type
-	{
-		ERROR = -1,
-		HELLO,
-		HELLO_OK,
-		DATA_BROADCAST,
-		DRONE_LIST,
-		DRONE_RTP,
-		INVALID = 0xff
-	} type;
-	std::string data;
-};
-
-class FlightDataServer;
 class FlightDataClient : public Client
 {
 public:
-	FlightDataClient(FlightDataServer* s);
-	virtual ~FlightDataClient();
-	virtual void recv(std::string);
+	virtual ~FlightDataClient() {}
+	virtual void recv(std::string) {}
 protected:
-	void recv(Message);
-	
-	virtual void handle(Message);
-	virtual void response(Message);
-private:
-	FlightDataServer* server;
-	std::atomic<bool> run;
-	std::thread* handler;
+	FlightDataClient(std::shared_ptr<FlightDataServer> s);
 
-	std::queue<Message> msg_q;
-	std::mutex msg_qm;
+	void hello(unsigned type, std::string drone = "", std::string serial = "");
+	void data(std::string msg);
+	void drone_list();
+
+	virtual void on_hello(ClientID_t) {}
+	virtual void on_data() {}
+	virtual void on_drone_list(std::vector<Client*>&) {}
+
+	std::shared_ptr<FlightDataServer> server;
 };
 
 #endif // !FLIGHT_DATA_CLIENT_HPP

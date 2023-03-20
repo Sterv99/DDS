@@ -1,77 +1,52 @@
 #include <DDS/core/flight_data/client.hpp>
 #include <DDS/core/flight_data/server.hpp>
+#include <cstdlib>
 
-FlightDataClient::FlightDataClient(FlightDataServer* s)
-: server(s), run(true)
+std::vector<Client*> drones_;
+
+class random_unsigned
 {
-    handler = new std::thread([this]()
+public:
+    random_unsigned(random_unsigned const&) = delete;
+	void operator=(random_unsigned const&) = delete;
+    static unsigned gen()
     {
-        while (run)
-        {
-            std::unique_lock<std::mutex> lock(msg_qm);
-            if (!msg_q.empty())
-            {
-                Message msg = msg_q.front();
-                msg_q.pop();
-
-                handle(msg);
-            }
-            //std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    });
-}
-
-FlightDataClient::~FlightDataClient()
-{
-    run = false;
-    if (handler->joinable())
-        handler->join();
-    delete handler;
-}
-
-void FlightDataClient::recv(std::string data)
-{
-    Message msg;
-    msg.type = Message::INVALID;
-    msg.data = data;
-
-    recv(msg);
-}
-
-void FlightDataClient::recv(Message msg)
-{
-    std::unique_lock<std::mutex> lock(msg_qm);
-    msg_q.push(msg);
-}
-
-void FlightDataClient::handle(Message msg)
-{
-    //server->broadcast(this, msg);
-    //std::cout << msg << std::endl;
-    if(msg.type == Message::HELLO)
-    {
-    	type = static_cast<Client::Type>(msg.data[0] - '0');
-        id = 0;//todo
-        msg.type = Message::HELLO_OK;
-        msg.data = std::to_string(id);
-    	
+        static random_unsigned instance;
+        return static_cast<unsigned>(std::rand());
     }
-    else if(msg.type == Message::DATA_BROADCAST)
+private:
+    random_unsigned()
     {
-    	
+        std::srand(static_cast<unsigned>(std::time(0)));
     }
+};
 
-    response(msg);
+FlightDataClient::FlightDataClient(std::shared_ptr<FlightDataServer> s)
+: server(s)
+{
+    
 }
 
-void FlightDataClient::response(Message msg)
+void FlightDataClient::hello(unsigned type, std::string drone, std::string serial)
 {
-    if(msg.type == Message::HELLO_OK)
-    {
-        server->send(this, msg.data);
-    }
-    else if(msg.type == Message::DATA_BROADCAST)
-    {
-        server->broadcast(this, msg.data);
-    }
+    this->type = static_cast<Client::Type>(type);
+    this->id = random_unsigned::gen();
+    this->drone_name = drone;
+    this->serial = serial;
+
+    if (this->type == Client::Type::DRONE)
+        drones_.push_back(this);
+
+    on_hello(id);
+}
+
+void FlightDataClient::data(std::string msg)
+{
+    server->broadcast(this, msg);
+    on_data();
+}
+
+void FlightDataClient::drone_list()
+{
+    on_drone_list(drones_);
 }

@@ -1,10 +1,10 @@
 #ifndef FLIGHT_DATA_SERVER_HPP
 #define FLIGHT_DATA_SERVER_HPP
 
-#include <DDS/core/client.hpp>
-#include <DDS/core/flight_data/client.hpp>
+#include <string>
 
-class FlightDataServer
+class FlightDataClient;
+class FlightDataServer : public std::enable_shared_from_this<FlightDataServer>
 {
 public:
 	FlightDataServer() {}
