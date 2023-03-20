@@ -12,11 +12,16 @@ public:
 		return instance;
 	}
 
-	int width = 1920, height = 1080;
-	int fps = 20;
-	int av_codec_id;
-	int av_pix_fmt_id;
-	int gop_size = 12;
+	void set_loglevel(int);
+
+	struct
+	{
+		unsigned width = 1920, height = 1080;
+		int fps = 20;
+		int av_codec_id;
+		int av_pix_fmt_id;
+		int gop_size = 12;
+	} record;
 private:
 	settings();
 };

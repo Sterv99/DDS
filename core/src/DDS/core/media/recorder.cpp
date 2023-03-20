@@ -1,5 +1,5 @@
 #include <DDS/core/media/recorder.hpp>
-
+#include <DDS/core/settings.hpp>
 
 extern "C"
 {
@@ -10,26 +10,27 @@ extern "C"
 
 
 media_recorder::media_recorder()
-    : media_encoder(AVCodecID::AV_CODEC_ID_H264)
+    : media_encoder(settings::get().record.av_codec_id)
 {
-    int ret;
+    auto& sett = settings::get();
 
+    int ret;
     ret = avformat_alloc_output_context2(&oc, nullptr, nullptr, "abc.mp4");
     ret = avio_open(&oc->pb, "abc.mp4", AVIO_FLAG_WRITE);
 
     oc->video_codec = c_;
-    oc->video_codec_id = AVCodecID::AV_CODEC_ID_H264;
+    oc->video_codec_id = c_->id;
 
 
-    const AVRational dst_fps = { fps, 1 };
+    const AVRational dst_fps = { sett.record.fps, 1 };
 
     cc_->codec_tag = 0;
-    cc_->codec_id = AVCodecID::AV_CODEC_ID_H264;
+    cc_->codec_id = static_cast<AVCodecID>(sett.record.av_codec_id);
     cc_->codec_type = AVMEDIA_TYPE_VIDEO;
-    cc_->width = width;
-    cc_->height = height;
-    cc_->gop_size = 12;
-    cc_->pix_fmt = AV_PIX_FMT_YUV420P;
+    cc_->width = sett.record.width;
+    cc_->height = sett.record.height;
+    cc_->gop_size = sett.record.gop_size;
+    cc_->pix_fmt = static_cast<AVPixelFormat>(sett.record.av_pix_fmt_id);
     cc_->framerate = dst_fps;
     cc_->time_base = av_inv_q(dst_fps);
     //video_enc_c->bit_rate = 3500 * 1024;

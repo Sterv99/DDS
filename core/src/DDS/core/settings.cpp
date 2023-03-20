@@ -1,5 +1,5 @@
 #include <DDS/core/settings.hpp>
-
+#include <DDS/core/logger.hpp>
 
 extern "C"
 {
@@ -10,8 +10,17 @@ extern "C"
 //#include <libswscale/swscale.h>
 }
 
+structlog LOGCFG{};
+
 settings::settings()
 {
-    av_codec_id = AVCodecID::AV_CODEC_ID_H264;
-    av_pix_fmt_id = AVPixelFormat::AV_PIX_FMT_YUV420P;
+    record.av_codec_id = AVCodecID::AV_CODEC_ID_H264;
+    record.av_pix_fmt_id = AVPixelFormat::AV_PIX_FMT_YUV420P;
+
+    LOGCFG.level = DEBUG;
+}
+
+void settings::set_loglevel(int l)
+{
+    //LOGCFG.level = static_cast<typelog>(l);
 }

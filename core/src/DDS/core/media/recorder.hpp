@@ -17,8 +17,6 @@ public:
 
     void write_frame(AVFrame*);
 private:
-    constexpr static int width = 1920, height = 1080, fps = 20;
-
     AVFormatContext* oc = nullptr;
     AVStream* vs = nullptr;
 
