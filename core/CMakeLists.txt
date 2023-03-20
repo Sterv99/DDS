@@ -7,6 +7,7 @@ set(SOURCES
 
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/encoder.cpp"
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/decoder.cpp"
+    "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/copypipe.cpp"
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/recorder.cpp"
 
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/flight_data/client.cpp"
@@ -35,6 +36,7 @@ pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
     libswscale
     libavutil
 )
+find_package(Boost REQUIRED COMPONENTS system)
 ##
 
 
@@ -51,6 +53,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     PkgConfig::LIBAV
+    Boost::system
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

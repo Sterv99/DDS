@@ -15,15 +15,15 @@ public:
         return instance;
     }
 
-    media_copypipe& pipe(ClientID_t cid)
+    std::shared_ptr<media_copypipe> pipe(ClientID_t cid)
     {
-        //if(recs.count(cid) == 0)
-        //    return nullptr;
-        //else
-            return recs[cid];
+        if(recs.count(cid) == 0)
+            recs[cid] = std::make_shared<media_copypipe>();
+
+        return recs[cid];
     }
 private:
-    std::map<ClientID_t, media_copypipe> recs;
+    std::map<ClientID_t, std::shared_ptr<media_copypipe>> recs;
     media_manager() {}
 };
 
