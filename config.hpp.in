@@ -1,5 +1,5 @@
-#ifndef DDS_HPP
-#define DDS_HPP
+#ifndef DDS_CONFIG_HPP
+#define DDS_CONFIG_HPP
 
 #cmakedefine COMPILE_WEBSOCKET
 #cmakedefine COMPILE_RTMP

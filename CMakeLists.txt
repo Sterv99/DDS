@@ -40,6 +40,9 @@ if(COMPILE_WEBSOCKET)
 	add_subdirectory ("websocket")
 endif()
 
+
+find_package(Boost REQUIRED COMPONENTS system program_options)
+
 add_executable (${PROJECT_NAME}a
     "DDS.cpp"
 )
@@ -48,7 +51,10 @@ target_include_directories(${PROJECT_NAME}a PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
 )
 
-target_link_libraries(${PROJECT_NAME}a DDS::core)
+target_link_libraries(${PROJECT_NAME}a
+	DDS::core
+	Boost::program_options
+)
 
 if(COMPILE_RTMP)
 	target_link_libraries(${PROJECT_NAME}a DDS::rtmp)
