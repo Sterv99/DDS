@@ -18,7 +18,7 @@ WebsocketServer::~WebsocketServer()
     server.stop_listening();
     for (auto& c : clients)
     {
-        server.close(c.first, websocketpp::close::status::normal, "finished");
+        //server.close(c.first, websocketpp::close::status::normal, "finished");//could be dangerous - dont send close
         delete c.second;
     }
     clients.clear();
@@ -81,6 +81,17 @@ void WebsocketServer::broadcast(FlightDataClient* src, const std::string& msg)
                     clients.erase(c.first);
                 }
             }
+        }
+    }
+}
+
+void WebsocketServer::kick(FlightDataClient* dst, websocketpp::close::status::value status, std::string reason)
+{
+    for (auto& c : clients)
+    {
+        if (c.second == dst)
+        {
+            server.close(c.first, status, reason);
         }
     }
 }
