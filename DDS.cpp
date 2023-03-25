@@ -1,8 +1,12 @@
 #include <iostream>
+#include <exception>
+
 #include <boost/asio.hpp>
+#include <boost/exception/all.hpp>
 #include <boost/program_options.hpp>
 
 #include <DDS/config.hpp>
+#include <DDS/core/logger.hpp>
 #include <DDS/core/settings.hpp>
 
 #ifdef COMPILE_WEBSOCKET
@@ -14,20 +18,75 @@
 #include <DDS/rtmp/rtmp_session.hpp>
 #endif
 
-
-void run()
+int run()
 {
     boost::asio::io_context io_context;
+    boost::asio::signal_set signals(io_context, SIGINT, SIGTERM);
+
+    signals.async_wait([&io_context](const boost::system::error_code& error, int signum)
+    {
+        if(signum == SIGINT)
+        {
+            LOG(INFO) << "<DDS> " << "SIGINT received. Stopping server.";
+        }
+        else if(signum == SIGTERM)
+        {
+            LOG(INFO) << "<DDS> " << "SIGTERM received. Stopping server.";
+        }
+        io_context.stop();
+    });
+
 
 #ifdef COMPILE_WEBSOCKET
-    std::make_shared<WebsocketServer>(&io_context)->run(5555);
+    try
+    {
+        std::make_shared<WebsocketServer>(&io_context)->run(5555);
+    }
+    catch (websocketpp::exception const& e)
+    {
+        LOG(ERROR) << "<DDS> " << e.what();
+        return -1;
+    }
+    catch (const std::exception& e)
+    {
+        LOG(ERROR) << "<DDS> " << e.what();
+        return -1;
+    }
 #endif
 
 #ifdef COMPILE_RTMP
-    std::make_shared<tcp_server<rtmp_session>>(io_context)->run();
+    try
+    {
+        std::make_shared<tcp_server<rtmp_session>>(io_context)->run();
+    }
+    catch (boost::exception &e)
+    {
+        LOG(ERROR) << "<DDS> " << boost::diagnostic_information(e);
+        return -1;
+    }
+    catch (const std::exception& e)
+    {
+        LOG(ERROR) << "<DDS> " << e.what();
+        return -1;
+    }
 #endif
 
-    io_context.run();
+    try
+    {
+        io_context.run();
+    }
+    catch (boost::exception &e)
+    {
+        LOG(ERROR) << "<DDS> " << boost::diagnostic_information(e);
+        return -1;
+    }
+    catch (const std::exception& e)
+    {
+        LOG(ERROR) << "<DDS> " << e.what();
+        return -1;
+    }
+
+    return 0;
 }
 
 namespace po = boost::program_options;
@@ -60,7 +119,5 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    run();
-
-    return 0;
+    return run();
 }
