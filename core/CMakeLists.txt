@@ -33,10 +33,11 @@ pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
     libavdevice
     libavformat
     libavcodec
-    libswscale
+    libswscale>=6.1.100
     libavutil
 )
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(Threads REQUIRED)
 ##
 
 
@@ -54,6 +55,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_link_libraries(${PROJECT_NAME} PUBLIC
     PkgConfig::LIBAV
     Boost::system
+    Threads::Threads
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
