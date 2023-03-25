@@ -13,6 +13,17 @@ WebsocketServer::WebsocketServer(boost::asio::io_context* io)
     server.set_reuse_addr(true);
 }
 
+WebsocketServer::~WebsocketServer()
+{
+    server.stop_listening();
+    for (auto& c : clients)
+    {
+        server.close(c.first, websocketpp::close::status::normal, "finished");
+        delete c.second;
+    }
+    clients.clear();
+}
+
 void WebsocketServer::run(uint16_t port)
 {
     auto self(std::dynamic_pointer_cast<WebsocketServer>(shared_from_this()));
@@ -100,6 +111,7 @@ void WebsocketServer::on_message(websocketpp::connection_hdl conn, server_t::mes
 {
     if (clients[conn])
     {
+        LOG(DEBUG) << "<websocket> " << "data income: " << msg->get_payload();
         clients[conn]->recv(msg->get_payload());
     }
 }

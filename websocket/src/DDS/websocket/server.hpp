@@ -13,6 +13,8 @@ class WebsocketServer : public FlightDataServer
 	using server_t = websocketpp::server<websocketpp::config::asio>;
 public:
 	WebsocketServer(boost::asio::io_context*);
+	~WebsocketServer();
+
 	void run(uint16_t);
 	void send(FlightDataClient*, const std::string& msg);
 	void broadcast(FlightDataClient*, const std::string& msg);
