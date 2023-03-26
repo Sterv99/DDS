@@ -112,8 +112,8 @@ int main(int argc, char* argv[])
         ("rtmp_port,rp", po::value<int>(&sett.dint["rtmp_port"])->default_value(1935), "RTMP Server port")
 #endif
 
-        ("rec_height,rch", po::value<unsigned>(&sett.record.height)->default_value(1920), "record height")
-        ("rec_width,rcw", po::value<unsigned>(&sett.record.width)->default_value(1080), "record width")
+        ("rec_width,rcw", po::value<unsigned>(&sett.record.width)->default_value(1920), "record width")
+        ("rec_height,rch", po::value<unsigned>(&sett.record.height)->default_value(1080), "record height")
         ("rec_fps,rcf", po::value<int>(&sett.record.fps)->default_value(20), "record fps")
     ;
 
