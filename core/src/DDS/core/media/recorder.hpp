@@ -3,13 +3,13 @@
 
 #include <cstdint>
 #include <DDS/core/media/encoder.hpp>
+#include <DDS/core/media/avframe_writer.hpp>
 
 class AVFormatContext;
 class AVPacket;
 class AVStream;
-class AVFrame;
 class SwsContext;
-class media_recorder : media_encoder
+class media_recorder : media_encoder, public AVFrameWriter
 {
 public:
     media_recorder();
@@ -23,7 +23,7 @@ private:
     AVFrame* nf = nullptr;
     SwsContext* swsctx = nullptr;
 
-    int64_t ts = 0;
+    uint64_t ts = 0;
 
     void on_encoded(AVPacket*);
 };

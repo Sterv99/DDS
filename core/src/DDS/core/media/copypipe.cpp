@@ -2,37 +2,33 @@
 
 void media_copypipe::write_frame(AVFrame* f)
 {
-    if(rec)
-        rec->write_frame(f);
-    
+    for (auto& w : writers)
+    {
+        w->write_frame(f);
+    }
 }
 
-void media_copypipe::add_operator_rtp(Client* client, uint16_t port)
+void media_copypipe::add_writer(std::shared_ptr<AVFrameWriter> writer)
 {
-    if(client->type != Client::Type::OPERATOR)
-        return;
-
-    if(operators.count(client) > 0)
-        return;
-
-    operators[client] = port;
+    writers.push_back(writer);
 }
 
 void media_copypipe::record(bool r)
 {
     if(r)
     {
-        if(!rec)
+        if(rec_index == -1)
         {
-            rec = new media_recorder();
+            writers.emplace_back(new media_recorder());
+            rec_index = writers.size()-1;
         }
     }
     else
     {
-        if(rec)
+        if(rec_index != -1)
         {
-            delete rec;
-            rec = nullptr;
+            writers.erase(writers.cbegin() + rec_index);
+            rec_index = -1;
         }
     }
 }
