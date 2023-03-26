@@ -1,6 +1,8 @@
 #include <DDS/rtmp/rtmp_stream.hpp>
 #include <DDS/rtmp/rtmp_session.hpp>
 
+#include <DDS/core/media/manager.hpp>
+
 int rtmp_stream::join(std::shared_ptr<tcp_session> session, bool publisher)
 {
     if(publisher_ && publisher)
@@ -14,6 +16,8 @@ int rtmp_stream::join(std::shared_ptr<tcp_session> session, bool publisher)
 
 void rtmp_stream::leave(std::shared_ptr<tcp_session> session)
 {
+    if(session == publisher_)
+        media_manager::get().erase(cid);
 	peers_.erase(session);
 }
 

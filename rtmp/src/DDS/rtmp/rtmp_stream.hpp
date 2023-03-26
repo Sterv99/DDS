@@ -29,6 +29,7 @@ public:
 	int join(std::shared_ptr<tcp_session>, bool publisher = false);
 	void leave(std::shared_ptr<tcp_session>);
 	bool has_publisher() const { return bool(publisher_); }
+	unsigned count() const { return peers_.size(); }
 
 	void send(std::shared_ptr<tcp_session>, std::shared_ptr<rtmp_chunk_stream>, uint16_t csid);
 private:

@@ -22,6 +22,11 @@ public:
 
         return recs[cid];
     }
+    void erase(ClientID_t cid)
+    {
+        if(recs.count(cid) > 0)
+            recs.erase(cid);
+    }
 private:
     std::map<ClientID_t, std::shared_ptr<media_copypipe>> recs;
     media_manager() {}
