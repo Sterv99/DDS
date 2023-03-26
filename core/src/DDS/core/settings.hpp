@@ -1,6 +1,9 @@
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
 
+#include <map>
+#include <string>
+
 class settings
 {
 public:
@@ -22,6 +25,8 @@ public:
 		int av_pix_fmt_id;
 		int gop_size = 12;
 	} record;
+
+	std::map<std::string, int> dint;
 private:
 	settings();
 };

@@ -20,6 +20,8 @@
 
 int run()
 {
+    auto& sett = settings::get();
+
     boost::asio::io_context io_context;
     boost::asio::signal_set signals(io_context, SIGINT, SIGTERM);
 
@@ -40,7 +42,7 @@ int run()
 #ifdef COMPILE_WEBSOCKET
     try
     {
-        std::make_shared<WebsocketServer>(&io_context)->run(5555);
+        std::make_shared<WebsocketServer>(&io_context)->run(sett.dint["websocket_port"]);
     }
     catch (websocketpp::exception const& e)
     {
@@ -57,7 +59,7 @@ int run()
 #ifdef COMPILE_RTMP
     try
     {
-        std::make_shared<tcp_server<rtmp_session>>(io_context)->run();
+        std::make_shared<tcp_server<rtmp_session>>(io_context)->run(sett.dint["rtmp_port"]);
     }
     catch (boost::exception &e)
     {
@@ -102,9 +104,17 @@ int main(int argc, char* argv[])
         ("help", "produce help message")
         ("log,l", po::value<int>(&log_level)->default_value(2), "log level: 3-ERROR,2-WARNING,1-INFO,0-DEBUG")
 
-        ("rec_height,rh", po::value<unsigned>(&sett.record.height)->default_value(1920), "record height")
-        ("rec_width,rw", po::value<unsigned>(&sett.record.width)->default_value(1080), "record width")
-        ("rec_fps,rf", po::value<int>(&sett.record.fps)->default_value(20), "record fps")
+#ifdef COMPILE_WEBSOCKET
+        ("websocket_port,wp", po::value<int>(&sett.dint["websocket_port"])->default_value(5555), "Websocket Server port")
+#endif
+
+#ifdef COMPILE_RTMP
+        ("rtmp_port,rp", po::value<int>(&sett.dint["rtmp_port"])->default_value(1935), "RTMP Server port")
+#endif
+
+        ("rec_height,rch", po::value<unsigned>(&sett.record.height)->default_value(1920), "record height")
+        ("rec_width,rcw", po::value<unsigned>(&sett.record.width)->default_value(1080), "record width")
+        ("rec_fps,rcf", po::value<int>(&sett.record.fps)->default_value(20), "record fps")
     ;
 
     po::variables_map vm;

@@ -16,11 +16,15 @@ settings::settings()
 {
     record.av_codec_id = AVCodecID::AV_CODEC_ID_H264;
     record.av_pix_fmt_id = AVPixelFormat::AV_PIX_FMT_YUV420P;
-
+    
+#ifndef NDEBUG
     LOGCFG.level = DEBUG;
+#endif
 }
 
 void settings::set_loglevel(int l)
 {
-    //LOGCFG.level = static_cast<typelog>(l);
+#ifdef NDEBUG
+    LOGCFG.level = static_cast<typelog>(l);
+#endif
 }
