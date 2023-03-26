@@ -1,6 +1,12 @@
 #include <DDS/websocket/client.hpp>
+#include <DDS/websocket/server.hpp>
 #include <DDS/websocket/json.hpp>
+
+#include <DDS/core/logger.hpp>
+#include <DDS/core/settings.hpp>
 #include <DDS/core/flight_data/server.hpp>
+
+#include <websocketpp/close.hpp>
 
 using json = nlohmann::json;
 
@@ -17,28 +23,41 @@ void WebsocketClient::recv(std::string msg)
 
 void WebsocketClient::handle(std::string msg)
 {
-    //server->broadcast(this, msg);///
-    //return;///
-
-
-
-    json j = json::parse(msg);
-
-    if(j["type"] == "hello")
+    try
     {
-        hello(j["data"]["ctype"], j["data"]["drone_name"], j["data"]["serial"]);
+        json j = json::parse(msg);
+
+        if(j["type"] == "hello" && !handshake_done)
+        {
+            int ctype = j["data"]["ctype"];
+            if(ctype == 0)
+            {
+                hello(ctype, j["data"]["drone_name"], j["data"]["serial"]);
+            }
+            else if(ctype == 1)
+            {
+                hello(ctype);
+            }
+            
+        }
+        else if(j["type"] == "data_broadcast" && handshake_done)
+        {
+            data(j.dump());
+        }
+        else if(j["type"] == "drone_list" && handshake_done)
+        {
+            drone_list();
+        }
+        else
+        {
+            LOG(ERROR) << "<websocket> " << "unsupported request";
+            std::dynamic_pointer_cast<WebsocketServer>(server)->kick(this, websocketpp::close::status::invalid_payload, "unsupported request");
+        }
     }
-    else if(j["type"] == "data_broadcast")
+    catch (json::exception const& ex)
     {
-        data(j.dump());
-    }
-    else if(j["type"] == "drone_list")
-    {
-        drone_list();
-    }
-    else
-    {
-
+        LOG(ERROR) << "<websocket> " << "parsing error";
+        std::dynamic_pointer_cast<WebsocketServer>(server)->kick(this, websocketpp::close::status::invalid_payload, "parsing error");
     }
 }
 
@@ -49,14 +68,14 @@ void WebsocketClient::on_hello(ClientID_t cid)
         {"type", "hello_resp"},
         {"data",
             {
-                {"cid", cid_to_hex(cid)}
+                {"ClientID", cid_to_hex(cid)}
             }
         }
     };
 
-    if(this->type == Client::Type::DRONE)
+    if(this->type == Client::Type::OPERATOR)
     {
-        j["data"]["rtmp_url"] = "";
+        j["data"]["rtmp_port"] = settings::get().dint.count("rtmp_port") > 0 ? settings::get().dint["rtmp_port"] : 0;
     }
 
     server->send(this, j.dump());
@@ -71,9 +90,9 @@ void to_json(json& j, const Client* c)
 {
     j =
     {
-        {"cid", cid_to_hex(c->id)},
-        {"drone_name", c->drone_name},
-        {"serial", c->serial}
+        {"ClientID", cid_to_hex(c->id)},
+        {"Name", c->drone_name},
+        {"Serial", c->serial}
     };
 }
 

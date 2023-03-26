@@ -29,6 +29,9 @@ FlightDataClient::FlightDataClient(std::shared_ptr<FlightDataServer> s)
 
 void FlightDataClient::hello(unsigned type, std::string drone, std::string serial)
 {
+    if (handshake_done)
+        return;
+
     this->type = static_cast<Client::Type>(type);
     this->id = random_unsigned::gen();
     this->drone_name = drone;
@@ -37,16 +40,23 @@ void FlightDataClient::hello(unsigned type, std::string drone, std::string seria
     if (this->type == Client::Type::DRONE)
         drones_.push_back(this);
 
+    handshake_done = true;
     on_hello(id);
 }
 
 void FlightDataClient::data(std::string msg)
 {
+    if (!handshake_done)
+        return;
+
     server->broadcast(this, msg);
     on_data();
 }
 
 void FlightDataClient::drone_list()
 {
+    if (!handshake_done)
+        return;
+
     on_drone_list(drones_);
 }

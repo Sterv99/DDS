@@ -24,6 +24,8 @@ protected:
 	virtual void on_drone_list(std::vector<Client*>&) {}
 
 	std::shared_ptr<FlightDataServer> server;
+
+	bool handshake_done = false;
 };
 
 #endif // !FLIGHT_DATA_CLIENT_HPP
