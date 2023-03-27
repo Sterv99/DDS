@@ -13,10 +13,11 @@ std::map<std::string, std::shared_ptr<rtmp_stream>> streams_;
 void rtmp_session::on_close()
 {
     if(streams_.count(url) > 0)
+    {
         streams_[url]->leave(shared_from_this());
-
-    if(streams_[url]->count() == 0)
-        streams_.erase(url);
+        if(streams_[url]->count() == 0)
+            streams_.erase(url);
+    }
 
     state = CLOSE;
     LOG(INFO) << "<rtmp> " << "closing client session.";

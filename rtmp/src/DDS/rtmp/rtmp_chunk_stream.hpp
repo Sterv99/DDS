@@ -30,8 +30,8 @@ public:
 private:
     rtmp_session* session;
 
-    uint32_t time_, dtime_, len_, stream_id_ = -1;
-    uint8_t type_;
+    uint32_t time_ = -1, dtime_ = -1, len_ = 0, stream_id_ = -1;
+    uint8_t type_ = 0;
     bool ext_ts_ = false;
 
     uint8_t fmt_;

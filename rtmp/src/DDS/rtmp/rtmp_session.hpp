@@ -42,6 +42,7 @@ private:
 	uint32_t window_size = 2500000;
 	uint32_t peer_bandwidth = 2500000;
 	uint32_t ack_recv = 0;
+	uint32_t ack_recv_total = 0;
 
 	bool header_read = false;
 	uint16_t csid_;
@@ -68,7 +69,7 @@ private:
 
 
 	void send_set_chunk_size();//1
-	void send_ack(size_t);//3
+	void send_ack();//3
 	void send_stream_begin(uint32_t stream_id);//4-0
 	void send_window_ack();//5
 	void send_set_peer_bandwidth();//6

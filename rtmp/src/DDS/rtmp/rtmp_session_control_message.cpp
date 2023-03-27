@@ -84,9 +84,9 @@ void rtmp_session::send_set_chunk_size()
     write_chunk(2, 0, 0, 1, 0, reinterpret_cast<uint8_t*>(&msg), sizeof(msg), true);
 }
 
-void rtmp_session::send_ack(size_t data_received)
+void rtmp_session::send_ack()
 {
-    uint32_t msg = data_received;
+    uint32_t msg = ack_recv_total;
     msg = swap_endian<uint32_t>(msg);
 
     write_chunk(2, 0, 0, 3, 0, reinterpret_cast<uint8_t*>(&msg), sizeof(msg), true);
@@ -94,21 +94,16 @@ void rtmp_session::send_ack(size_t data_received)
 
 void rtmp_session::send_stream_begin(uint32_t stream_id)
 {
-    /*struct
-    {
-        uint16_t id;
-        uint32_t sid;
-    }msg{ 0, stream_id };*/
     uint8_t msg[6];
     msg[0] = 0;
     msg[1] = 0;
 
-    msg[2] = 0;
-    msg[3] = 0;
-    msg[4] = 0;
-    msg[5] = stream_id;
+    msg[2] = (stream_id >> 24) & 0xFF;
+    msg[3] = (stream_id >> 16) & 0xFF;
+    msg[4] = (stream_id >>  8) & 0xFF;
+    msg[5] = (stream_id >>  0) & 0xFF;
 
-    write_chunk(2, 0, 0, 4, 0, reinterpret_cast<uint8_t*>(msg), sizeof(msg), true);
+    write_chunk(2, 0, 0, 4, 0, msg, sizeof(msg), true);
 }
 
 void rtmp_session::send_window_ack()
@@ -121,13 +116,14 @@ void rtmp_session::send_window_ack()
 
 void rtmp_session::send_set_peer_bandwidth()
 {
-    struct
-    {
-        uint32_t size;
-        uint16_t limit = 0;
-    }msg;
-    msg.size = peer_bandwidth;
-    msg.size = swap_endian<uint32_t>(msg.size);
+    uint8_t msg[6];
+    msg[0] = (peer_bandwidth >> 24) & 0xFF;
+    msg[1] = (peer_bandwidth >> 16) & 0xFF;
+    msg[2] = (peer_bandwidth >>  8) & 0xFF;
+    msg[3] = (peer_bandwidth >>  0) & 0xFF;
 
-    write_chunk(2, 0, 0, 6, 0, reinterpret_cast<uint8_t*>(&msg), sizeof(msg), true);
+    msg[4] = 0;
+    msg[5] = 0;
+
+    write_chunk(2, 0, 0, 6, 0, msg, sizeof(msg), true);
 }

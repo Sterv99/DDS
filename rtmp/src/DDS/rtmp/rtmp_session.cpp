@@ -65,7 +65,14 @@ void rtmp_session::on_error(boost::system::error_code ec)
 {
 	if(ec == boost::system::errc::broken_pipe)
 	{
-		//LOG(WARN) << ec.message();
+		close();
+	}
+	else if(ec == boost::asio::error::eof)
+	{
+		close();
+	}
+	else if(ec == boost::system::errc::connection_reset)
+	{
 		close();
 	}
 	else
@@ -152,9 +159,10 @@ int rtmp_session::handle()
 			}
 
 			ack_recv += cs_in[csid_]->data()->size();
+			ack_recv_total += cs_in[csid_]->data()->size();
 			if (ack_recv > window_size)
 			{
-				send_ack(ack_recv);
+				send_ack();
 				ack_recv = 0;
 			}
 
@@ -168,8 +176,6 @@ int rtmp_session::handle()
 	}
 	return ret;
 }
-
-//#include <cstdio>
 
 int rtmp_session::read_chunk_stream()
 {
@@ -196,7 +202,6 @@ int rtmp_session::read_chunk_stream()
 	ret = cs->read_header(fmt_, csid_);
 	if (ret == 0)
 	{
-		//printf("basic header: fmt=%d, csid:%d; message header: timestamp=%lu, msglen=%u, typeid:%d, msg streamid:%u, remain:%ld, recv buffer len:%lu\n", fmt_, csid_, cs_in[csid_]->time(), cs_in[csid_]->len(), cs_in[csid_]->type(), cs_in[csid_]->stream(), cs_in[csid_]->rem(), recv_buf.size());
 		ret = cs->read_payload();
 		if (ret == 0)
 		{
