@@ -7,6 +7,7 @@ set(SOURCES
     src/${SOLUTION_NAME}/${PROJECT_NAME}/rtmp_session_control_message.cpp
     src/${SOLUTION_NAME}/${PROJECT_NAME}/rtmp_session_command_message.cpp
     src/${SOLUTION_NAME}/${PROJECT_NAME}/rtmp_chunk_stream.cpp
+    src/${SOLUTION_NAME}/${PROJECT_NAME}/rtmp_handshake.cpp
     src/${SOLUTION_NAME}/${PROJECT_NAME}/rtmp_stream.cpp
     src/${SOLUTION_NAME}/${PROJECT_NAME}/gop_cache.cpp
     src/${SOLUTION_NAME}/${PROJECT_NAME}/flv_demuxer.cpp

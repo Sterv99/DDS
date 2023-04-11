@@ -10,13 +10,15 @@
 #include <DDS/core/tcp_session.hpp>
 #include <DDS/rtmp/media_packet.hpp>
 #include <DDS/rtmp/rtmp_chunk_stream.hpp>
+#include <DDS/rtmp/rtmp_handshake.hpp>
 
 class rtmp_session : public tcp_session
 {
 	friend class rtmp_chunk_stream;
+	friend class rtmp_handshake;
 public:
 	rtmp_session(tcp::socket socket)
-		: tcp_session(std::move(socket)) {}
+		: tcp_session(std::move(socket)), hs(this) {}
 	~rtmp_session() { }
 
 	void write_chunk(uint16_t csid, uint32_t time, uint32_t dtime, uint8_t type_id, uint32_t stream_id, std::shared_ptr<std::vector<uint8_t>>, bool force_f0 = false);
@@ -36,11 +38,13 @@ private:
 
 	std::deque<uint8_t> recv_buf;
 
+	rtmp_handshake hs;
 	std::unordered_map<uint16_t, std::shared_ptr<rtmp_chunk_stream>> cs_in, cs_out;
 
 	uint32_t max_chunk_size = 128;
 	uint32_t window_size = 2500000;
 	uint32_t peer_bandwidth = 2500000;
+	uint8_t peer_bandwidth_type = 0;
 	uint32_t ack_recv = 0;
 	uint32_t ack_recv_total = 0;
 

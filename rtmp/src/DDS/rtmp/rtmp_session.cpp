@@ -1,58 +1,10 @@
 #include <DDS/rtmp/rtmp_session.hpp>
 #include <DDS/core/logger.hpp>
 
-struct C0S0
-{
-	uint8_t version;
-};
-
-struct C1S1
-{
-	uint32_t time;
-	uint32_t zero;
-	std::array<uint8_t, 1528> random;
-};
-
-struct C2S2
-{
-	uint32_t time;
-	uint32_t time2;
-	std::array<uint8_t, 1528> random;
-};
-
 void rtmp_session::on_connect()
 {
 	LOG(INFO) << "<rtmp> " << "new client trying to connect";
-	C0S0 c0{}, s0{};
-
-	size_t size = sizeof(C0S0);
-	read(&c0, size);
-	s0 = c0;
-
-	size = sizeof(C0S0);
-	write(&s0, size);
-
-	C1S1 c1{}, s1{};
-
-	size = sizeof(C1S1);
-	write(&s1, size);
-
-	size = sizeof(C1S1);
-	read(&c1, size);
-
-	C2S2 c2{}, s2{};
-	s2.time = c1.time;
-	s2.random = c1.random;
-
-	size = sizeof(C2S2);
-	write(&s2, size);
-
-	size = sizeof(C2S2);
-	read(&c2, size);
-
-	state = CONNECT;
-	LOG(INFO) << "<rtmp> " << "handshake successful - client connected";
-
+	state = INIT;
 	async_read();
 }
 
@@ -126,18 +78,20 @@ int rtmp_session::handle()
 	int ret = -1;
 	if (state == INIT)
 	{
-		/*ret = hs.handle_c0c1();
+		ret = hs.handle_c0c1();
 		if (ret < 0 || ret == 1)
 			return ret;
-		recv_buf->clear();
 		ret = hs.send_s0s1s2();
-		state = HANDSHAKE_C2;*/
+		state = HANDSHAKE_C2;
 	}
 	else if (state == HANDSHAKE_C2)
 	{
-		/*ret = hs.handle_c2();
+		ret = hs.handle_c2();
 		if (ret < 0 || ret == 1)
-			return ret;*/
+			return ret;
+		LOG(INFO) << "<rtmp> " << "handshake successful - client connected";
+		state = CONNECT;
+		return 1;
 	}
 	else if (state == CLOSE)
 	{
