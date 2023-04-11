@@ -1,5 +1,6 @@
 #include <DDS/rtmp/rtmp_session.hpp>
 #include <DDS/core/logger.hpp>
+#include <ctime>
 
 template <typename T>
 class swap_endian
@@ -31,6 +32,15 @@ int rtmp_session::handle_control_message()
 
         LOG(DEBUG) << "<rtmp> " << "new chunk size: " << int(max_chunk_size);
     }
+    else if (type == 2)
+    {
+        uint32_t csid = *reinterpret_cast<uint32_t*>(cs_in[csid_]->data()->data());
+        csid = swap_endian<uint32_t>(csid);
+
+        cs_in.erase(csid);
+
+        LOG(DEBUG) << "<rtmp> " << "abort message received for chunk stream: " << int(csid);
+    }
     else if (type == 3)
     {
         uint32_t seq_num = *reinterpret_cast<uint32_t*>(cs_in[csid_]->data()->data());
@@ -54,6 +64,13 @@ int rtmp_session::handle_control_message()
 
             LOG(DEBUG) << "<rtmp> " << "client buffer len request: " << int(buffer_len) << " for stream id: " << int(et_stream_id);
         }
+        else if(et == 7)
+        {
+            uint32_t et_timestamp = *reinterpret_cast<uint32_t*>(data + sizeof(uint16_t));
+            et_timestamp = swap_endian<uint32_t>(et_timestamp);
+
+            LOG(DEBUG) << "<rtmp> " << "client pong response timestamp: " << int(et_timestamp);
+        }
         else
         {
             LOG(WARN) << "<rtmp> " << "unimplemented control type: " << int(type) << "-" << int(et);
@@ -65,6 +82,15 @@ int rtmp_session::handle_control_message()
         window_size = swap_endian<uint32_t>(window_size);
 
         LOG(DEBUG) << "<rtmp> " << "window size set: " << int(window_size);
+    }
+    else if (type == 6)
+    {
+        peer_bandwidth = *reinterpret_cast<uint32_t*>(cs_in[csid_]->data()->data());
+        peer_bandwidth = swap_endian<uint32_t>(peer_bandwidth);
+
+        peer_bandwidth_type = cs_in[csid_]->data()->at(4);
+
+        LOG(DEBUG) << "<rtmp> " << "peer bandwidth set: " << int(peer_bandwidth) << " with type: " << int(peer_bandwidth_type);
     }
     else
     {
@@ -106,6 +132,64 @@ void rtmp_session::send_stream_begin(uint32_t stream_id)
     write_chunk(2, 0, 0, 4, 0, msg, sizeof(msg), true);
 }
 
+void rtmp_session::send_stream_eof(uint32_t stream_id)
+{
+    uint8_t msg[6];
+    msg[0] = 0;
+    msg[1] = 1;
+
+    msg[2] = (stream_id >> 24) & 0xFF;
+    msg[3] = (stream_id >> 16) & 0xFF;
+    msg[4] = (stream_id >>  8) & 0xFF;
+    msg[5] = (stream_id >>  0) & 0xFF;
+
+    write_chunk(2, 0, 0, 4, 0, msg, sizeof(msg), true);
+}
+
+void rtmp_session::send_stream_dry(uint32_t stream_id)
+{
+    uint8_t msg[6];
+    msg[0] = 0;
+    msg[1] = 2;
+
+    msg[2] = (stream_id >> 24) & 0xFF;
+    msg[3] = (stream_id >> 16) & 0xFF;
+    msg[4] = (stream_id >>  8) & 0xFF;
+    msg[5] = (stream_id >>  0) & 0xFF;
+
+    write_chunk(2, 0, 0, 4, 0, msg, sizeof(msg), true);
+}
+
+void rtmp_session::send_stream_isrecorded(uint32_t stream_id)
+{
+    uint8_t msg[6];
+    msg[0] = 0;
+    msg[1] = 4;
+
+    msg[2] = (stream_id >> 24) & 0xFF;
+    msg[3] = (stream_id >> 16) & 0xFF;
+    msg[4] = (stream_id >>  8) & 0xFF;
+    msg[5] = (stream_id >>  0) & 0xFF;
+
+    write_chunk(2, 0, 0, 4, 0, msg, sizeof(msg), true);
+}
+
+void rtmp_session::send_ping_request()
+{
+    uint8_t msg[6];
+    msg[0] = 0;
+    msg[1] = 6;
+
+    uint32_t ct = std::time(0);
+
+    msg[2] = (ct >> 24) & 0xFF;
+    msg[3] = (ct >> 16) & 0xFF;
+    msg[4] = (ct >>  8) & 0xFF;
+    msg[5] = (ct >>  0) & 0xFF;
+
+    write_chunk(2, 0, 0, 4, 0, msg, sizeof(msg), true);
+}
+
 void rtmp_session::send_window_ack()
 {
     uint32_t msg = window_size;
@@ -116,14 +200,13 @@ void rtmp_session::send_window_ack()
 
 void rtmp_session::send_set_peer_bandwidth()
 {
-    uint8_t msg[6];
+    uint8_t msg[5];
     msg[0] = (peer_bandwidth >> 24) & 0xFF;
     msg[1] = (peer_bandwidth >> 16) & 0xFF;
     msg[2] = (peer_bandwidth >>  8) & 0xFF;
     msg[3] = (peer_bandwidth >>  0) & 0xFF;
 
-    msg[4] = 0;
-    msg[5] = 0;
+    msg[4] = peer_bandwidth_type;
 
     write_chunk(2, 0, 0, 6, 0, msg, sizeof(msg), true);
 }

@@ -70,7 +70,13 @@ private:
 
 	void send_set_chunk_size();//1
 	void send_ack();//3
+public:
 	void send_stream_begin(uint32_t stream_id);//4-0
+	void send_stream_eof(uint32_t stream_id);//4-1
+	void send_stream_dry(uint32_t stream_id);//4-2
+	void send_stream_isrecorded(uint32_t stream_id);//4-4
+	void send_ping_request();//4-6
+private:
 	void send_window_ack();//5
 	void send_set_peer_bandwidth();//6
 

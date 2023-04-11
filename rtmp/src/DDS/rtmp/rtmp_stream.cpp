@@ -17,8 +17,21 @@ int rtmp_stream::join(std::shared_ptr<tcp_session> session, bool publisher)
 void rtmp_stream::leave(std::shared_ptr<tcp_session> session)
 {
     if(session == publisher_)
+    {
         media_manager::get().erase(cid);
-	peers_.erase(session);
+        publisher_.reset();
+
+        peers_.erase(session);
+
+        for (auto& sp : peers_)
+        {
+            std::dynamic_pointer_cast<rtmp_session>(sp.first)->send_stream_eof(id);
+        }
+    }
+    else
+    {
+        peers_.erase(session);
+    }
 }
 
 inline
