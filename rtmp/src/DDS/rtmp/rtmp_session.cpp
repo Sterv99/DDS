@@ -5,7 +5,7 @@ void rtmp_session::on_connect()
 {
 	LOG(INFO) << "<rtmp> " << "new client trying to connect";
 	state = INIT;
-	async_read();
+	async_read(hs.c0_size + hs.c1_size);
 }
 
 void rtmp_session::on_write(size_t len)
@@ -83,6 +83,8 @@ int rtmp_session::handle()
 			return ret;
 		ret = hs.send_s0s1s2();
 		state = HANDSHAKE_C2;
+		async_read(hs.c2_size);
+		return 0;
 	}
 	else if (state == HANDSHAKE_C2)
 	{

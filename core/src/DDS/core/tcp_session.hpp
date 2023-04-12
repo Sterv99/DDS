@@ -60,10 +60,12 @@ public:
         if (flush)
             do_write();
     }
-    void async_read()
+    void async_read(size_t read_buf_size = read_buffer_size)
     {
+        if(read_buf_size > read_buffer_size)
+            return;
         auto self(shared_from_this());
-        socket_.async_read_some(boost::asio::buffer(read_buffer_, read_buffer_size), [self](boost::system::error_code ec, size_t read_size)
+        socket_.async_read_some(boost::asio::buffer(read_buffer_, read_buf_size), [self](boost::system::error_code ec, size_t read_size)
         {
             if(!ec)
             {
