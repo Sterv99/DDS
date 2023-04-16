@@ -16,12 +16,16 @@ class async_handler
 	std::mutex msg_qm;
     std::condition_variable cv;
 public:
-    virtual ~async_handler()
+    void stop()
     {
         run = false;
         cv.notify_one();
         if (handler->joinable())
             handler->join();
+    }
+    virtual ~async_handler()
+    {
+        stop();
         delete handler;
     }
     void add(T j)
