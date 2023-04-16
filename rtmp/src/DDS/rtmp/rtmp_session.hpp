@@ -85,6 +85,9 @@ private:
 	void send_set_peer_bandwidth();//6
 
 	void send_onStatus(unsigned tid, std::string level, std::string code, std::string desc);
+
+
+	virtual void on_stream_create(ClientID_t) {}
 };
 
 

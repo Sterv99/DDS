@@ -149,6 +149,7 @@ int rtmp_session::handle_command_message()
         if(streams_.count(url) == 0)
         {
             streams_[url] = std::make_shared<rtmp_stream>(url);
+            on_stream_create(streams_[url]->cid);
         }
         streams_[url]->join(shared_from_this(), true);
 
@@ -170,6 +171,7 @@ int rtmp_session::handle_command_message()
         if(streams_.count(url) == 0)
         {
             streams_[url] = std::make_shared<rtmp_stream>(url);
+            on_stream_create(streams_[url]->cid);
         }
         streams_[url]->join(shared_from_this());
         send_stream_begin(cs_in[csid_]->stream());
