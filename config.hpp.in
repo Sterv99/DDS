@@ -3,5 +3,6 @@
 
 #cmakedefine COMPILE_WEBSOCKET
 #cmakedefine COMPILE_RTMP
+#cmakedefine COMPILE_VEHICLE_DETECTION
 
 #endif

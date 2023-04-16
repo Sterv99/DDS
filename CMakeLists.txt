@@ -13,9 +13,13 @@ SET(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windo
 SET(COMPILE_RTMP ON CACHE BOOL "should be RTMP module compiled?")
 SET(COMPILE_WEBSOCKET ON CACHE BOOL "should be WebSocket module compiled?")
 
+if(COMPILE_WEBSOCKET)
+	SET(COMPILE_VEHICLE_DETECTION ON CACHE BOOL "should be Vehicle Detection module compiled?")
+endif()
+
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
-SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 14)
 
 #set(CMAKE_VERBOSE_MAKEFILE on)
 
@@ -40,6 +44,10 @@ if(COMPILE_WEBSOCKET)
 	add_subdirectory ("websocket")
 endif()
 
+if(COMPILE_VEHICLE_DETECTION)
+	add_subdirectory(vehicle_detection)
+endif()
+
 
 find_package(Boost REQUIRED COMPONENTS system program_options)
 
@@ -62,6 +70,10 @@ endif()
 
 if(COMPILE_WEBSOCKET)
 	target_link_libraries(${PROJECT_NAME}a DDS::websocket)
+endif()
+
+if(COMPILE_VEHICLE_DETECTION)
+	target_link_libraries(${PROJECT_NAME}a DDS::vehicle_detection)
 endif()
 
 install(TARGETS ${PROJECT_NAME}a

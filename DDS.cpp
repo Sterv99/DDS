@@ -8,14 +8,37 @@
 #include <DDS/config.hpp>
 #include <DDS/core/logger.hpp>
 #include <DDS/core/settings.hpp>
+#include <DDS/core/media/manager.hpp>
 
 #ifdef COMPILE_WEBSOCKET
 #include <DDS/websocket/server.hpp>
+std::shared_ptr<WebsocketServer> websocket_server_p;
+#endif
+
+#ifdef COMPILE_VEHICLE_DETECTION
+#include <DDS/vehicle_detection/vehicle_detection.hpp>
 #endif
 
 #ifdef COMPILE_RTMP
 #include <DDS/core/tcp_server.hpp>
 #include <DDS/rtmp/rtmp_session.hpp>
+
+class my_rtmp_session : public rtmp_session
+{
+public:
+    my_rtmp_session(tcp::socket socket)
+		: rtmp_session(std::move(socket)) {}
+private:
+    void on_stream_create(ClientID_t cid)
+    {
+#ifdef COMPILE_VEHICLE_DETECTION
+        media_manager::get().pipe(cid)->add_writer(std::make_shared<VehicleDetector>(websocket_server_p, "cars.xml"));
+#endif
+    }
+};
+
+std::shared_ptr<tcp_server<my_rtmp_session>> rtmp_server_p;
+
 #endif
 
 int run()
@@ -42,7 +65,8 @@ int run()
 #ifdef COMPILE_WEBSOCKET
     try
     {
-        std::make_shared<WebsocketServer>(&io_context)->run(sett.dint["websocket_port"]);
+        websocket_server_p = std::make_shared<WebsocketServer>(&io_context);
+        websocket_server_p->run(sett.dint["websocket_port"]);
     }
     catch (websocketpp::exception const& e)
     {
@@ -59,7 +83,8 @@ int run()
 #ifdef COMPILE_RTMP
     try
     {
-        std::make_shared<tcp_server<rtmp_session>>(io_context)->run(sett.dint["rtmp_port"]);
+        rtmp_server_p = std::make_shared<tcp_server<my_rtmp_session>>(io_context);
+        rtmp_server_p->run(sett.dint["rtmp_port"]);
     }
     catch (boost::exception &e)
     {
@@ -87,6 +112,8 @@ int run()
         LOG(ERROR) << "<DDS> " << e.what();
         return -1;
     }
+
+    media_manager::get().clear();
 
     return 0;
 }
