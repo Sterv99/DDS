@@ -18,6 +18,7 @@ public:
 	void run(uint16_t);
 	void send(FlightDataClient*, const std::string& msg);
 	void broadcast(FlightDataClient*, const std::string& msg);
+	void broadcast(const std::string& msg);
 	void kick(FlightDataClient*, websocketpp::close::status::value, std::string reason);
 private:
 	server_t server;

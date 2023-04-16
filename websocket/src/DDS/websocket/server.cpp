@@ -85,6 +85,26 @@ void WebsocketServer::broadcast(FlightDataClient* src, const std::string& msg)
     }
 }
 
+void WebsocketServer::broadcast(const std::string& msg)
+{
+    for (auto& c : clients)
+    {
+        try
+        {
+            server.send(c.first, msg, websocketpp::frame::opcode::TEXT);
+        }
+        catch (websocketpp::exception const& e)
+        {
+            LOG(ERROR) << "<websocket> " << e.what();
+            if (clients[c.first])
+            {
+                delete clients[c.first];
+                clients.erase(c.first);
+            }
+        }
+    }
+}
+
 void WebsocketServer::kick(FlightDataClient* dst, websocketpp::close::status::value status, std::string reason)
 {
     for (auto& c : clients)
