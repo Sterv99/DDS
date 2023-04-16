@@ -4,7 +4,7 @@ void media_copypipe::write_frame(AVFrame* f)
 {
     for (auto& w : writers)
     {
-        w->write_frame(f);
+        w->write_frame(cid, f);
     }
 }
 

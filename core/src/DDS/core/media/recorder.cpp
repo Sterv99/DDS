@@ -78,7 +78,7 @@ media_recorder::~media_recorder()
 }
 
 
-void media_recorder::write_frame(AVFrame* frame)
+void media_recorder::write_frame(const ClientID_t, AVFrame* frame)
 {
     int ret;
 

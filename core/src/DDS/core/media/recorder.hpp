@@ -15,7 +15,7 @@ public:
     media_recorder();
     ~media_recorder();
 
-    void write_frame(AVFrame*);
+    void write_frame(const ClientID_t, AVFrame*);
 private:
     AVFormatContext* oc = nullptr;
     AVStream* vs = nullptr;

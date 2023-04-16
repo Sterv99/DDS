@@ -6,16 +6,19 @@
 #include <DDS/core/media/recorder.hpp>
 #include <DDS/core/media/avframe_writer.hpp>
 
-class AVFrame;
 class media_copypipe : public AVFrameWriter
 {
 public:
+    media_copypipe(ClientID_t cid_)
+    : cid(cid_) {}
+
     unsigned count() const { return writers.size(); }
     void add_writer(std::shared_ptr<AVFrameWriter>);
     void record(bool);
 
     void write_frame(AVFrame*);
 private:
+    const ClientID_t cid;
     std::vector<std::shared_ptr<AVFrameWriter>> writers;
 
     int rec_index = -1;
