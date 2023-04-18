@@ -23,4 +23,5 @@ $ make
 ```
 ---
 Rtmp module inspired by [cpp_media_server-1](https://github.com/grandi23/cpp_media_server-1) which is licensed under [MIT](https://opensource.org/licenses/MIT). Copyright (c) 2021 Alex.CR
+
 The class contains a copy of [json](https://github.com/nlohmann/json) from Niels Lohmann which is licensed under [MIT](https://opensource.org/licenses/MIT). Copyright (c) 2013-2022 Niels Lohmann
