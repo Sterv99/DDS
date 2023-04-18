@@ -15,6 +15,16 @@
 std::shared_ptr<WebsocketServer> websocket_server_p;
 #endif
 
+#ifdef COMPILE_RECORDER
+#include <DDS/recorder/recorder.hpp>
+
+extern "C"
+{
+#include <libavformat/avformat.h>
+}
+
+#endif
+
 #ifdef COMPILE_VEHICLE_DETECTION
 #include <DDS/vehicle_detection/vehicle_detection.hpp>
 #endif
@@ -31,6 +41,12 @@ public:
 private:
     void on_stream_create(ClientID_t cid)
     {
+        auto& sett = settings::get();
+#ifdef COMPILE_RECORDER
+        if(sett.dint["record_force"])
+            media_manager::get().pipe(cid)->add_writer(std::make_shared<media_recorder>(cid_to_hex(cid) + ".mp4"));
+#endif
+
 #ifdef COMPILE_VEHICLE_DETECTION
         media_manager::get().pipe(cid)->add_writer(std::make_shared<VehicleDetector>(websocket_server_p, "cars.xml"));
 #endif
@@ -139,9 +155,13 @@ int main(int argc, char* argv[])
         ("rtmp_port,rp", po::value<int>(&sett.dint["rtmp_port"])->default_value(1935), "RTMP Server port")
 #endif
 
-        ("rec_width,rcw", po::value<unsigned>(&sett.record.width)->default_value(1920), "record width")
-        ("rec_height,rch", po::value<unsigned>(&sett.record.height)->default_value(1080), "record height")
-        ("rec_fps,rcf", po::value<int>(&sett.record.fps)->default_value(20), "record fps")
+#ifdef COMPILE_RECORDER
+        ("rec_width,rcw", po::value<int>(&sett.dint["record_width"])->default_value(1920), "record width")
+        ("rec_height,rch", po::value<int>(&sett.dint["record_height"])->default_value(1080), "record height")
+        ("rec_fps,rcf", po::value<int>(&sett.dint["record_fps"])->default_value(20), "record fps")
+        ("rec_bitrate,rcbr", po::value<int>(&sett.dint["record_bitrate"])->default_value(3500), "record bitrate in kb/s")
+        ("rec_f,r", po::value<int>(&sett.dint["record_force"])->default_value(0), "force stream recording")
+#endif
     ;
 
     po::variables_map vm;
@@ -156,6 +176,12 @@ int main(int argc, char* argv[])
         return -1;
     }
     
+
+#ifdef COMPILE_RECORDER
+    sett.dint["record_av_codec_id"] = AVCodecID::AV_CODEC_ID_H264;
+    sett.dint["record_av_pix_fmt_id"] = AVPixelFormat::AV_PIX_FMT_YUV420P;
+    sett.dint["record_gop_size"] = 12;
+#endif
 
     sett.set_loglevel(log_level);
 

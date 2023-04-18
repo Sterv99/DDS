@@ -12,6 +12,7 @@ SET(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windo
 
 SET(COMPILE_RTMP ON CACHE BOOL "should be RTMP module compiled?")
 SET(COMPILE_WEBSOCKET ON CACHE BOOL "should be WebSocket module compiled?")
+SET(COMPILE_RECORDER ON CACHE BOOL "should be Recorder module compiled?")
 
 if(COMPILE_WEBSOCKET)
 	SET(COMPILE_VEHICLE_DETECTION ON CACHE BOOL "should be Vehicle Detection module compiled?")
@@ -44,6 +45,10 @@ if(COMPILE_WEBSOCKET)
 	add_subdirectory ("websocket")
 endif()
 
+if(COMPILE_RECORDER)
+	add_subdirectory(recorder)
+endif()
+
 if(COMPILE_VEHICLE_DETECTION)
 	add_subdirectory(vehicle_detection)
 endif()
@@ -70,6 +75,10 @@ endif()
 
 if(COMPILE_WEBSOCKET)
 	target_link_libraries(${PROJECT_NAME}a DDS::websocket)
+endif()
+
+if(COMPILE_RECORDER)
+	target_link_libraries(${PROJECT_NAME}a DDS::recorder)
 endif()
 
 if(COMPILE_VEHICLE_DETECTION)

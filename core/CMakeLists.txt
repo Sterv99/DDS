@@ -8,7 +8,6 @@ set(SOURCES
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/encoder.cpp"
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/decoder.cpp"
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/copypipe.cpp"
-    "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/recorder.cpp"
 
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/flight_data/client.cpp"
 )
@@ -19,7 +18,6 @@ set(INCLUDES
 
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/encoder.hpp"
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/decoder.hpp"
-    "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/recorder.hpp"
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/copypipe.hpp"
     "src/${SOLUTION_NAME}/${PROJECT_NAME}/media/manager.hpp"
     

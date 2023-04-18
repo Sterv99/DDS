@@ -17,21 +17,9 @@ public:
 
 	void set_loglevel(int);
 
-	struct
-	{
-		unsigned width = 1920, height = 1080;
-		int fps = 20;
-		int av_codec_id;
-		int av_pix_fmt_id;
-		int gop_size = 12;
-	} record;
-
 	std::map<std::string, int> dint;
 private:
 	settings();
 };
-
-
-
 
 #endif // !SETTINGS_HPP
