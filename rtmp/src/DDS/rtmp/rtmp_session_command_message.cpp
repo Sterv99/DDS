@@ -120,6 +120,13 @@ int rtmp_session::handle_command_message()
             streams_.erase(url);
         }
     }
+    else if (rcommand.value == "deleteStream")
+    {
+        Amf0Null null;
+        null.read(&buf);
+        Amf0Number asid;
+        asid.read(&buf);
+    }
     else if (rcommand.value == "FCPublish")
     {
         Amf0Null null;
@@ -129,6 +136,20 @@ int rtmp_session::handle_command_message()
 
         cid = acid.value;
         url = app + '/' + cid;
+    }
+    else if (rcommand.value == "FCUnpublish")
+    {
+        Amf0Null null;
+        null.read(&buf);
+        Amf0String acid;
+        acid.read(&buf);
+
+        if(cid == acid.value && streams_.count(url) > 0)
+        {
+            streams_[url]->leave(shared_from_this());
+            if(streams_[url]->count() == 0)
+                streams_.erase(url);
+        }
     }
     else if (rcommand.value == "getStreamLength")
     {
