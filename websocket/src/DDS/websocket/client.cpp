@@ -68,7 +68,7 @@ void WebsocketClient::on_hello(ClientID_t cid)
         {"type", "hello_resp"},
         {"data",
             {
-                {"ClientID", cid_to_hex(cid)}
+                {"client_id", cid_to_hex(cid)}
             }
         }
     };
@@ -90,9 +90,9 @@ void to_json(json& j, const Client* c)
 {
     j =
     {
-        {"ClientID", cid_to_hex(c->id)},
-        {"Name", c->drone_name},
-        {"Serial", c->serial}
+        {"client_id", cid_to_hex(c->id)},
+        {"drone_name", c->drone_name},
+        {"serial", c->serial}
     };
 }
 

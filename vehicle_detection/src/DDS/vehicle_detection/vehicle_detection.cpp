@@ -79,7 +79,7 @@ void VehicleDetector::handle(ClientFramePacked cfp)
         {"type", "vehicle_detection_rects"},
         {"data", 
             {
-                {"ClientID", cid_to_hex(cfp.cid)},
+                {"client_id", cid_to_hex(cfp.cid)},
                 {"rects", rects}
             }
         }
