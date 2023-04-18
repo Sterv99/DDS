@@ -2,16 +2,17 @@
 
 ### Dependencies
 * CMake >= 3.17
-* OpenSSL
 * Boost
-* [FFMPEG](https://git.ffmpeg.org/ffmpeg.git) build at least with libx264 enabled
+* [FFMPEG](https://git.ffmpeg.org/ffmpeg.git) build with at least libx264 enabled
 * [websocketpp](https://github.com/zaphoyd/websocketpp)
+* OpenSSL
+* libopencv
 
-``` $ sudo apt-get install make cmake yasm nasm pkg-config libssl-dev libboost-all-dev libx264-dev libvpx-dev ```
+``` $ sudo apt-get install make cmake yasm nasm pkg-config libssl-dev libboost-all-dev libx264-dev```
 
 I configured ffmpeg with:
 
-``` $ ./configure  --ld="g++" --enable-gpl --disable-programs --disable-static --enable-shared --enable-libx264 --enable-libvpx ```
+``` $ ./configure  --ld="g++" --enable-gpl --disable-programs --disable-static --enable-shared --enable-libx264```
 
 ### Building
 ```
@@ -20,3 +21,5 @@ $ cd build
 $ cmake ..
 $ make
 ```
+---
+rtmp module inspired by: https://github.com/grandi23/cpp_media_server-1
