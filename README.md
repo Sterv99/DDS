@@ -6,9 +6,10 @@
 * [FFMPEG](https://git.ffmpeg.org/ffmpeg.git) build with at least libx264 enabled
 * [websocketpp](https://github.com/zaphoyd/websocketpp)
 * OpenSSL
-* libopencv
+* OpenCV2 (libopencv)
+* [mariadb++](https://github.com/viaduck/mariadbpp)
 
-``` $ sudo apt-get install make cmake yasm nasm pkg-config libssl-dev libboost-all-dev libx264-dev```
+``` $ sudo apt-get install make cmake yasm nasm pkg-config libssl-dev libboost-all-dev libx264-dev libopencv-dev```
 
 I configured ffmpeg with:
 
